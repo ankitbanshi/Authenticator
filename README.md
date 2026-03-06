@@ -1,16 +1,21 @@
-# Full-Stack Mini Project - Role-Based Authentication
 
-A full-stack web application with role-based authentication (User/Admin) built with Next.js, Express, MongoDB, and JWT.
+# Role-Based Authentication
+
+A full-stack web application with role-based authentication (User/Admin) built with **Next.js**, **Express**, **MongoDB**, and **JWT**.
+
+---
 
 ## 🚀 Features
 
-- **Role-Based Authentication**: Sign up and login with User or Admin roles
-- **Secure Password Storage**: Passwords are hashed using bcrypt
-- **JWT Authentication**: Token-based authentication for secure API access
-- **Protected Routes**: Dashboard accessible only to authenticated users
-- **Modern UI**: Beautiful, responsive design with TailwindCSS
-- **TypeScript**: Full type safety across frontend and backend
+- **Role-Based Authentication:** Sign up and login with `User` or `Admin` roles
+- **Secure Password Storage:** Passwords hashed using `bcrypt`
+- **JWT Authentication:** Token-based authentication for secure API access
+- **Protected Routes:** Dashboard accessible only to authenticated users
+- **CRUD Operations:** Create, read, update, and delete user resources
+- **Modern UI:** Responsive design with TailwindCSS
+- **TypeScript:** Full type safety across frontend and backend
 
+---
 
 ## 🌐 Live Deployment
 
@@ -20,22 +25,23 @@ A full-stack web application with role-based authentication (User/Admin) built w
 ### 🔸 Backend (Express API)
 **API Base URL:** [https://your-backend-url.vercel.app](https://authentication-assignment-backend.vercel.app/)
 
+---
 
 ## 📋 Tech Stack
 
-### Backend
-- Node.js with Express
-- MongoDB (MongoDB Atlas)
-- Mongoose ODM
+**Backend**
+- Node.js + Express
+- MongoDB Atlas + Mongoose ODM
 - JWT for authentication
 - bcryptjs for password hashing
 
-### Frontend
+**Frontend**
 - Next.js 14 with TypeScript
-- TailwindCSS for styling
-- React Hook Form for form handling
-- Zod for form validation
-- Axios for API calls
+- TailwindCSS
+- React Hook Form + Zod validation
+- Axios
+
+---
 
 ## 📁 Project Structure
 
@@ -69,75 +75,66 @@ MiniProject/
 └── README.md
 ```
 
+---
+
 ## 🛠️ Setup Instructions
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB Atlas account (free tier)
+- Node.js v18+
+- MongoDB Atlas account (free tier works)
 - npm or yarn
 
 ### Backend Setup
 
-1. Navigate to the backend directory:
 ```bash
 cd backend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Create a `.env` file (copy from `.env.example`):
-```bash
 cp .env.example .env
 ```
 
-4. Update `.env` with your MongoDB Atlas connection string and JWT secret:
+Update `.env`:
 ```env
-MONGODB_URI=your_mongodb_atlas_connection_string_here
-JWT_SECRET=your_super_secret_jwt_key_here_change_this_in_production
+MONGODB_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_super_secret_jwt_key
+PORT=5000
 ```
 
-5. Start the backend server:
 ```bash
 npm run dev
+# Runs on http://localhost:5000
 ```
-
-The backend will run on `http://localhost:5000`
 
 ### Frontend Setup
 
-1. Navigate to the frontend directory:
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Create a `.env.local` file (copy from `.env.example`):
-```bash
 cp .env.example .env.local
 ```
 
-4. Update `.env.local` with your backend URL:
+Update `.env.local`:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
-5. Start the development server:
 ```bash
 npm run dev
+# Runs on http://localhost:3000
 ```
 
-The frontend will run on `http://localhost:3000`
+---
 
-## 🔐 API Endpoints
+## 🔐 API Documentation
 
-### POST /auth/signup
+> **Base URL:** `https://your-backend-url.vercel.app`  
+> **Auth header format:** `Authorization: Bearer <token>`  
+> A full Postman collection is available in [`/backend/postman_collection.json`](./backend/postman_collection.json)
+
+---
+
+### Auth Endpoints
+
+#### `POST /auth/signup`
 Create a new user account.
 
 **Request Body:**
@@ -150,7 +147,7 @@ Create a new user account.
 }
 ```
 
-**Response:**
+**Response `201`:**
 ```json
 {
   "message": "User created successfully",
@@ -164,8 +161,13 @@ Create a new user account.
 }
 ```
 
-### POST /auth/login
-Login with email and password.
+**Error `400`:** Email already in use  
+**Error `422`:** Validation failed (password < 6 chars, missing fields)
+
+---
+
+#### `POST /auth/login`
+Login and receive a JWT token.
 
 **Request Body:**
 ```json
@@ -175,7 +177,7 @@ Login with email and password.
 }
 ```
 
-**Response:**
+**Response `200`:**
 ```json
 {
   "message": "Login successful",
@@ -189,15 +191,16 @@ Login with email and password.
 }
 ```
 
-### GET /auth/me
-Get current user information (requires authentication).
+**Error `401`:** Invalid credentials
 
-**Headers:**
-```
-Authorization: Bearer jwt_token_here
-```
+---
 
-**Response:**
+#### `GET /auth/me` 🔒
+Get the currently authenticated user's profile.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response `200`:**
 ```json
 {
   "user": {
@@ -209,59 +212,145 @@ Authorization: Bearer jwt_token_here
 }
 ```
 
+**Error `401`:** Missing or invalid token
+
+---
+
+### User CRUD Endpoints (Admin only)
+
+> All routes below require `Authorization: Bearer <token>` with an **Admin** role.
+
+#### `GET /users`
+Returns a list of all registered users.
+
+**Response `200`:**
+```json
+[
+  { "id": "1", "name": "John Doe", "email": "john@example.com", "role": "User" },
+  { "id": "2", "name": "Jane Smith", "email": "jane@example.com", "role": "Admin" }
+]
+```
+
+---
+
+#### `GET /users/:id`
+Get a single user by ID.
+
+**Response `200`:**
+```json
+{ "id": "1", "name": "John Doe", "email": "john@example.com", "role": "User" }
+```
+
+**Error `404`:** User not found
+
+---
+
+#### `PUT /users/:id`
+Update a user's name or role.
+
+**Request Body:**
+```json
+{
+  "name": "John Updated",
+  "role": "Admin"
+}
+```
+
+**Response `200`:**
+```json
+{ "message": "User updated", "user": { "id": "1", "name": "John Updated", "role": "Admin" } }
+```
+
+---
+
+#### `DELETE /users/:id`
+Delete a user account.
+
+**Response `200`:**
+```json
+{ "message": "User deleted successfully" }
+```
+
+**Error `404`:** User not found
+
+---
+
 ## 🚢 Deployment
 
-
-#### Deployed Both Frontend and Backend to Vercel 
-
-**Frontend:**
-1. Push code to GitHub
-2. Go to [vercel.com](https://vercel.com) and sign in with GitHub
-3. Click "Add New Project" → Import your repository
-4. Set **Root Directory** to `frontend`
-5. Add environment variable:
-   - `NEXT_PUBLIC_API_URL`: Will be set after backend deployment
-6. Click "Deploy"
+### Vercel (Frontend + Backend)
 
 **Backend:**
-1. In Vercel, create another project from the same repository
-2. Set **Root Directory** to `backend`
-3. Add environment variables:
-   - `MONGODB_URI`: Your MongoDB Atlas connection string
-   - `JWT_SECRET`: A secure random string
-4. Click "Deploy"
-5. Copy the backend URL and update `NEXT_PUBLIC_API_URL` in frontend project
+1. Create a new Vercel project → set Root Directory to `backend`
+2. Add environment variables:
+   - `MONGODB_URI` — your MongoDB Atlas connection string
+   - `JWT_SECRET` — a secure random string
+3. Deploy and copy the backend URL
 
-
-**Frontend (Vercel):**
-1. Deploy to Vercel as above
-2. Set `NEXT_PUBLIC_API_URL` to your Render backend URL
-
-📖 **See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed step-by-step instructions**
+**Frontend:**
+1. Create another Vercel project → set Root Directory to `frontend`
+2. Add environment variable:
+   - `NEXT_PUBLIC_API_URL` — your deployed backend URL
+3. Deploy
 
 ### MongoDB Atlas Setup
+1. Create a free account at [mongodb.com/atlas](https://www.mongodb.com/atlas)
+2. Create a cluster and a database user
+3. Whitelist `0.0.0.0/0` (all IPs) for development
+4. Copy the connection string into your `.env`
 
-1. Create a free account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a new cluster
-3. Create a database user
-4. Whitelist your IP address (or use 0.0.0.0/0 for development)
-5. Get your connection string and use it in your `.env` file
+---
 
+## 📬 Postman Collection
 
-## 📝 Notes
+Import the collection from `/backend/postman_collection.json` to test all endpoints locally or against the live API. It includes pre-configured environment variables for `base_url` and `auth_token`.
 
-- Passwords must be at least 6 characters long
-- JWT tokens expire after 7 days
-- The dashboard shows different content based on user role
-- All routes are protected except login and signup pages
+Alternatively, Swagger/OpenAPI docs are auto-generated and accessible at:
+```
+http://localhost:5000/api-docs
+```
+
+---
+
+## 📈 Scalability Notes
+
+This project is designed as a monolith suitable for a mini-project, but can be scaled using the following strategies:
+
+### Microservices
+As the application grows, the auth service and user management service can be extracted into independent microservices, each with its own database. This allows teams to deploy, scale, and update services independently without affecting the whole system.
+
+### Caching
+A Redis layer can be introduced to cache JWT validation results and frequently-accessed user records (e.g., `/auth/me`), reducing redundant database reads and improving response times under load.
+
+### Load Balancing
+Deploying multiple instances of the Express backend behind a load balancer (e.g., AWS ALB, NGINX) distributes traffic evenly and eliminates single points of failure. Combined with horizontal auto-scaling (e.g., AWS ECS or Kubernetes), the API can handle traffic spikes gracefully.
+
+### Database Scaling
+MongoDB Atlas supports automatic sharding and replica sets. Read-heavy workloads can be offloaded to secondary replicas, and sharding can be enabled to distribute data across multiple nodes as user volume grows.
+
+### Rate Limiting & Security at Scale
+At scale, API gateway-level rate limiting (e.g., AWS API Gateway, Kong) can protect against abuse, while a CDN (e.g., Cloudflare) can handle static frontend assets and edge caching globally.
+
+---
 
 ## 🔒 Security Features
 
-- Passwords are hashed using bcrypt
-- JWT tokens for stateless authentication
+- Passwords hashed with bcrypt (salt rounds: 10)
+- JWT tokens expire after 7 days
 - Protected API routes with authentication middleware
-- CORS enabled for cross-origin requests
-- Input validation on both frontend and backend
+- CORS configured for allowed origins only
+- Input validation on both frontend (Zod) and backend (Express middleware)
+- Role-based access control (RBAC) for admin-only routes
+
+---
+
+## 📝 Notes
+
+- Passwords must be at least 6 characters
+- JWT tokens expire after 7 days
+- Dashboard content varies by user role
+- All routes except `/auth/login` and `/auth/signup` require authentication
+
+---
 
 ## 👤 Author
 
